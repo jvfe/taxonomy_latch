@@ -7,7 +7,7 @@ megs_DOCS = LatchMetadata(
         name="jvfe",
         github="https://github.com/jvfe",
     ),
-    repository="https://github.com/jvfe/megs_latch",
+    repository="https://github.com/jvfe/taxonomy_latch",
     license="MIT",
     tags=["NGS", "metagenomics", "MAG"],
 )

@@ -7,7 +7,14 @@ from latch.resources.launch_plan import LaunchPlan
 from latch.types import LatchDir, LatchFile
 
 from .docs import megs_DOCS
-from .kaiju import kaiju_wf
+from .kaiju import (
+    kaiju2krona_task,
+    kaiju2table_task,
+    kaiju_wf,
+    organize_kaiju_inputs,
+    plot_krona_task,
+    taxonomy_classification_task,
+)
 from .types import Sample, TaxonRank
 
 
@@ -37,13 +44,20 @@ def taxonomy(
 ) -> WfResults:
     """Metagenomic taxonomic read classification with Kaiju
 
-    megs
+    taxonomy
     ----------
 
-    megs classifies taxonomic reads with Kaiju.
+    taxonomy performs taxonomic classification of reads with Kaiju.
     """
 
-    kaiju2table_outs, krona_plots = kaiju_wf(
+    # kaiju2table_outs, krona_plots = kaiju_wf(
+    #     samples=samples,
+    #     kaiju_ref_db=kaiju_ref_db,
+    #     kaiju_ref_nodes=kaiju_ref_nodes,
+    #     kaiju_ref_names=kaiju_ref_names,
+    #     taxon_rank=taxon_rank,
+    # )
+    kaiju_inputs = organize_kaiju_inputs(
         samples=samples,
         kaiju_ref_db=kaiju_ref_db,
         kaiju_ref_nodes=kaiju_ref_nodes,
@@ -51,8 +65,15 @@ def taxonomy(
         taxon_rank=taxon_rank,
     )
 
+    kaiju_outfiles = map_task(taxonomy_classification_task)(kaiju_input=kaiju_inputs)
+
+    kaiju2table_out = map_task(kaiju2table_task)(kaiju_out=kaiju_outfiles)
+    kaiju2krona_out = map_task(kaiju2krona_task)(kaiju_out=kaiju_outfiles)
+
+    krona_plots = map_task(plot_krona_task)(krona_input=kaiju2krona_out)
+
     return organize_final_outputs(
-        krona_plots=krona_plots, kaiju2table_outs=kaiju2table_outs
+        krona_plots=krona_plots, kaiju2table_outs=kaiju2table_out
     )
 
 

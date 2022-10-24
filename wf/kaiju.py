@@ -3,6 +3,7 @@ Taxonomic classification of reads
 """
 
 import subprocess
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Tuple
@@ -84,6 +85,8 @@ def taxonomy_classification_task(kaiju_input: KaijuSample) -> KaijuOut:
     sample_name = kaiju_input.sample_name
     output_name = f"{sample_name}_kaiju.out"
     kaiju_out = Path(output_name).resolve()
+
+    time.sleep(5 * 60)
 
     _kaiju_cmd = [
         "kaiju",
