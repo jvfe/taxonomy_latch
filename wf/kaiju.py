@@ -80,8 +80,6 @@ def taxonomy_classification_task(kaiju_input: KaijuSample) -> KaijuOut:
     output_name = f"{sample_name}_kaiju.out"
     kaiju_out = Path(output_name).resolve()
 
-    time.sleep(5 * 60)
-
     _kaiju_cmd = [
         "kaiju",
         "-t",
@@ -206,28 +204,28 @@ def plot_krona_task(krona_input: KronaInput) -> LatchFile:
     return LatchFile(str(krona_html), f"latch:///kaiju/{sample_name}/{output_name}")
 
 
-# @workflow
-# def kaiju_wf(
-#     samples: List[Sample],
-#     kaiju_ref_db: LatchFile,
-#     kaiju_ref_nodes: LatchFile,
-#     kaiju_ref_names: LatchFile,
-#     taxon_rank: TaxonRank,
-# ) -> Tuple[List[LatchFile], List[LatchFile]]:
+@workflow
+def kaiju_wf(
+    samples: Sample,
+    kaiju_ref_db: LatchFile,
+    kaiju_ref_nodes: LatchFile,
+    kaiju_ref_names: LatchFile,
+    taxon_rank: TaxonRank,
+) -> Tuple[LatchFile, LatchFile]:
 
-#     kaiju_inputs = organize_kaiju_inputs(
-#         samples=samples,
-#         kaiju_ref_db=kaiju_ref_db,
-#         kaiju_ref_nodes=kaiju_ref_nodes,
-#         kaiju_ref_names=kaiju_ref_names,
-#         taxon_rank=taxon_rank,
-#     )
+    kaiju_inputs = organize_kaiju_inputs(
+        samples=samples,
+        kaiju_ref_db=kaiju_ref_db,
+        kaiju_ref_nodes=kaiju_ref_nodes,
+        kaiju_ref_names=kaiju_ref_names,
+        taxon_rank=taxon_rank,
+    )
 
-#     kaiju_outfiles = map_task(taxonomy_classification_task)(kaiju_input=kaiju_inputs)
+    kaiju_outfiles = taxonomy_classification_task(kaiju_input=kaiju_inputs)
 
-#     kaiju2table_out = map_task(kaiju2table_task)(kaiju_out=kaiju_outfiles)
-#     kaiju2krona_out = map_task(kaiju2krona_task)(kaiju_out=kaiju_outfiles)
+    kaiju2table_out = kaiju2table_task(kaiju_out=kaiju_outfiles)
+    kaiju2krona_out = kaiju2krona_task(kaiju_out=kaiju_outfiles)
 
-#     krona_plots = map_task(plot_krona_task)(krona_input=kaiju2krona_out)
+    krona_plots = plot_krona_task(krona_input=kaiju2krona_out)
 
-#     return kaiju2table_out, krona_plots
+    return krona_plots, kaiju2table_out
