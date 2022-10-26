@@ -6,7 +6,7 @@ from latch import map_task, small_task, workflow
 from latch.resources.launch_plan import LaunchPlan
 from latch.types import LatchDir, LatchFile
 
-from .docs import megs_DOCS
+from .docs import taxonomy_docs
 from .kaiju import kaiju_wf
 from .types import Sample, TaxonRank
 
@@ -27,7 +27,7 @@ def organize_final_outputs(
     return WfResults(krona_plots=krona_plots, kaiju2table_outs=kaiju2table_outs)
 
 
-@workflow(megs_DOCS)
+@workflow(taxonomy_docs)
 def taxonomy(
     samples: Sample,
     kaiju_ref_db: LatchFile,
@@ -35,12 +35,23 @@ def taxonomy(
     kaiju_ref_names: LatchFile,
     taxon_rank: TaxonRank = TaxonRank.species,
 ) -> WfResults:
-    """Metagenomic taxonomic read classification with Kaiju
+    """Fast taxonomic classification of high-throughput sequencing reads
 
-    taxonomy
-    ----------
+    Kaiju
+    -----
 
-    taxonomy performs taxonomic classification of reads with Kaiju.
+    # Taxonomic classification with Kaiju
+
+    Kaiju[^1] performs taxonomic classification of
+    whole-genome sequencing metagenomics reads.
+    Reads are assigned to taxa by using a reference database
+    of protein sequences.
+    Read more about it [here](https://github.com/bioinformatics-centre/kaiju)
+
+    -----
+    [^1]: Menzel, P., Ng, K. & Krogh, A. Fast and sensitive taxonomic classification for
+    metagenomics with Kaiju. Nat Commun 7, 11257 (2016).
+    https://doi.org/10.1038/ncomms11257
     """
 
     kaiju2table_outs, krona_plots = kaiju_wf(

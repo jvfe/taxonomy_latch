@@ -1,6 +1,6 @@
 from latch.types import LatchAuthor, LatchMetadata, LatchParameter
 
-megs_DOCS = LatchMetadata(
+taxonomy_docs = LatchMetadata(
     display_name="taxonomy",
     documentation="https://github.com/jvfe/megs_latch/blob/main/README.md",
     author=LatchAuthor(
@@ -12,7 +12,7 @@ megs_DOCS = LatchMetadata(
     tags=["NGS", "metagenomics", "MAG"],
 )
 
-megs_DOCS.parameters = {
+taxonomy_docs.parameters = {
     "samples": LatchParameter(
         display_name="Sample data",
         description="Paired-end FASTQ files",
