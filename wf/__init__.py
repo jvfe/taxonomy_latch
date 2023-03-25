@@ -6,9 +6,9 @@ from latch import map_task, small_task, workflow
 from latch.resources.launch_plan import LaunchPlan
 from latch.types import LatchDir, LatchFile
 
-from .docs import taxonomy_docs
-from .kaiju import kaiju_wf
-from .types import Sample, TaxonRank
+from wf.docs import taxonomy_docs
+from wf.kaiju import kaiju_wf
+from wf.types import Sample, TaxonRank
 
 
 @dataclass_json
@@ -23,7 +23,6 @@ def organize_final_outputs(
     krona_plots: LatchFile,
     kaiju2table_outs: LatchFile,
 ) -> WfResults:
-
     return WfResults(krona_plots=krona_plots, kaiju2table_outs=kaiju2table_outs)
 
 

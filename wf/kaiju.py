@@ -11,10 +11,9 @@ from typing import List, Tuple
 from dataclasses_json import dataclass_json
 from flytekit import task
 from latch import large_task, map_task, message, small_task, workflow
-from latch.resources.tasks import _get_large_pod, _get_small_pod
 from latch.types import LatchFile
 
-from .types import Sample, TaxonRank
+from wf.types import Sample, TaxonRank
 
 
 @dataclass_json
@@ -46,10 +45,7 @@ class KronaInput:
     krona_txt: LatchFile
 
 
-@task(
-    task_config=_get_small_pod(),
-    dockerfile=Path(__file__).parent.parent / Path("kaiju_Dockerfile"),
-)
+@small_task
 def organize_kaiju_inputs(
     samples: Sample,
     kaiju_ref_db: LatchFile,
@@ -57,7 +53,6 @@ def organize_kaiju_inputs(
     kaiju_ref_names: LatchFile,
     taxon_rank: TaxonRank,
 ) -> KaijuSample:
-
     return KaijuSample(
         read1=samples.read1,
         read2=samples.read2,
@@ -69,10 +64,7 @@ def organize_kaiju_inputs(
     )
 
 
-@task(
-    task_config=_get_large_pod(),
-    dockerfile=Path(__file__).parent.parent / Path("kaiju_Dockerfile"),
-)
+@large_task
 def taxonomy_classification_task(kaiju_input: KaijuSample) -> KaijuOut:
     """Classify metagenomic reads with Kaiju"""
 
@@ -115,10 +107,7 @@ def taxonomy_classification_task(kaiju_input: KaijuSample) -> KaijuOut:
     )
 
 
-@task(
-    task_config=_get_small_pod(),
-    dockerfile=Path(__file__).parent.parent / Path("kaiju_Dockerfile"),
-)
+@small_task
 def kaiju2table_task(kaiju_out: KaijuOut) -> LatchFile:
     """Convert Kaiju output to TSV format"""
 
@@ -149,10 +138,7 @@ def kaiju2table_task(kaiju_out: KaijuOut) -> LatchFile:
     )
 
 
-@task(
-    task_config=_get_small_pod(),
-    dockerfile=Path(__file__).parent.parent / Path("kaiju_Dockerfile"),
-)
+@small_task
 def kaiju2krona_task(kaiju_out: KaijuOut) -> KronaInput:
     """Convert Kaiju output to Krona-readable format"""
 
@@ -182,10 +168,7 @@ def kaiju2krona_task(kaiju_out: KaijuOut) -> KronaInput:
     )
 
 
-@task(
-    task_config=_get_small_pod(),
-    dockerfile=Path(__file__).parent.parent / Path("krona_Dockerfile"),
-)
+@small_task
 def plot_krona_task(krona_input: KronaInput) -> LatchFile:
     """Make Krona plot from Kaiju results"""
     sample_name = krona_input.sample_name
@@ -212,7 +195,6 @@ def kaiju_wf(
     kaiju_ref_names: LatchFile,
     taxon_rank: TaxonRank,
 ) -> Tuple[LatchFile, LatchFile]:
-
     kaiju_inputs = organize_kaiju_inputs(
         samples=samples,
         kaiju_ref_db=kaiju_ref_db,
